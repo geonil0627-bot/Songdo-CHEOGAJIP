@@ -5,17 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>처갓집양념치킨 송도 매장 안내</title>
     <!-- 카카오 지도 API 불러오기 -->
-    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=a4e99ce36c59c06bbd13225c4f3067b3&libraries=services"></script>
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=a4e99ce36c59c06bbd13225c4f3067b3&libraries=services"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif; }
         body { padding: 15px; background-color: #f8f9fa; color: #333; }
-        h1 { font-size: 20px; text-align: center; margin-bottom: 15px; color: #d32f2f; }
-        #map { width: 100%; height: 300px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        h1 { font-size: 20px; text-align: center; margin-bottom: 5px; color: #d32f2f; }
+        .notice { text-align: center; font-size: 13px; color: #666; margin-bottom: 15px; }
+        #map { width: 100%; height: 350px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
         .store-card { background: #fff; padding: 15px; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
-        .store-info h3 { font-size: 16px; margin-bottom: 5px; }
+        .store-info h3 { font-size: 16px; margin-bottom: 5px; color: #111; }
         .store-info p { font-size: 13px; color: #666; }
         .call-btn { background-color: #e53935; color: white; text-decoration: none; padding: 10px 15px; border-radius: 6px; font-weight: bold; font-size: 14px; white-space: nowrap; }
-        .notice { text-align: center; font-size: 12px; color: #777; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -52,28 +52,27 @@
     </div>
 
     <script>
-        // 매장 정보 데이터 (주소 기반 좌표 변환 준비)
         const stores = [
-            { name: "처갓집양념치킨 송도센트럴점", tel: "032-831-8980", address: "인천 연수구 컨벤시아대로 130" },
-            { name: "처갓집양념치킨 송도월드마크점", tel: "032-832-8328", address: "인천 연수구 신송로 122" },
-            { name: "처갓집양념치킨 송도레이크점", tel: "032-833-8323", address: "인천 연수구 랜드마크로 160" }
+            { name: "처갓집양념치킨 송도센트럴점", address: "인천 연수구 컨벤시아대로 130" },
+            { name: "처갓집양념치킨 송도월드마크점", address: "인천 연수구 신송로 122" },
+            { name: "처갓집양념치킨 송도레이크점", address: "인천 연수구 랜드마크로 160" }
         ];
 
-        // 기본 지도 생성 (인천 송도 중심점)
+        // 지도 생성 (기본 중심: 송도)
         const container = document.getElementById('map');
         const options = {
             center: new kakao.maps.LatLng(37.394, 126.641),
-            level: 6
+            level: 5
         };
-        const map = new kakao.maps.LatLngBounds() ? new kakao.maps.Map(container, options) : null;
+        const map = new kakao.maps.Map(container, options);
         const geocoder = new kakao.maps.services.Geocoder();
 
-        // 매장 마커 표시
+        // 3개 매장 주소 -> 좌표 전환 및 마커 표시
         stores.forEach(store => {
             geocoder.addressSearch(store.address, function(result, status) {
                 if (status === kakao.maps.services.Status.OK) {
                     const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
-                    const marker = new kakao.maps.Marker({
+                    new kakao.maps.Marker({
                         map: map,
                         position: coords,
                         title: store.name
@@ -82,20 +81,23 @@
             });
         });
 
-        // 사용자 내 위치 가져오기
+        // 사용자 현재 위치 파악
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(function(position) {
                 const lat = position.coords.latitude;
                 const lng = position.coords.longitude;
                 const locPosition = new kakao.maps.LatLng(lat, lng);
 
-                // 내 위치에 마커 표시
-                const userMarker = new kakao.maps.Marker({
+                // 내 위치 마커 생성
+                new kakao.maps.Marker({
                     map: map,
                     position: locPosition
                 });
 
+                // 내 위치로 지도 중심 이동
                 map.setCenter(locPosition);
+            }, function(error) {
+                console.log("위치 정보를 가져올 수 없습니다.");
             });
         }
     </script>
