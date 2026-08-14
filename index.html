@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>처갓집양념치킨 송도 매장 안내</title>
-    <!-- 카카오 지도 SDK -->
     <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=a4e99ce36c59c06bbd13225c4f3067b3&libraries=services"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif; }
@@ -31,7 +30,6 @@
         .store-info .addr { font-size: 12px; color: #888; }
         .call-btn { background-color: #e53935; color: white; text-decoration: none; padding: 10px 15px; border-radius: 6px; font-weight: bold; font-size: 14px; white-space: nowrap; }
         
-        /* 지도 말풍선 스타일 */
         .info-window { padding: 6px 10px; font-size: 13px; font-weight: bold; color: #333; text-align: center; white-space: nowrap; }
     </style>
 </head>
@@ -42,52 +40,55 @@
     
     <div id="map"></div>
 
-    <div id="store-list">
-        <!-- 매장 카드는 JS에서 동적으로 생성하여 주소 변경 시 자동 업데이트됩니다 -->
-    </div>
+    <div id="store-list"></div>
 
     <script>
-        // 📌 [주소 수정 가능] 각 지점의 정확한 명칭, 주소, 전화번호를 입력하세요.
+        // 📌 [핀포인트 직접 수정 구역]
+        // lat(위도)과 lng(경도) 숫자를 수정하여 마커 위치를 미세조정할 수 있습니다.
         const stores = [
             { 
                 id: 0,
                 name: "처갓집양념치킨 송도센트럴점", 
-                address: "인천 연수구 하모니로188번길 17", // ← 정확한 주소로 수정
-                phone: "032-831-8980" 
+                address: "인천 연수구 하모니로188번길 17",
+                phone: "032-831-8980",
+                lat: 37.3823557281522,  // ← 미세 조정용 위도
+                lng: 126.63949009678146  // ← 미세 조정용 경도
             },
             { 
                 id: 1,
                 name: "처갓집양념치킨 송도월드마크점", 
-                address: "인천 연수구 컨벤시아대로 50", // ← 정확한 주소로 수정
-                phone: "032-832-8328" 
+                address: "인천 연수구 컨벤시아대로 50",
+                phone: "032-832-8328",
+                lat: 37.398488024328074,  // ← 미세 조정용 위도
+                lng: 126.65136432400652  // ← 미세 조정용 경도
             },
             { 
                 id: 2,
                 name: "처갓집양념치킨 송도레이크점", 
-                address: "인천 연수구 아카데미로312번길 177", // ← 정확한 주소로 수정
-                phone: "032-833-8323" 
+                address: "인천 연수구 아카데미로312번길 177",
+                phone: "032-833-8323",
+                lat: 37.40142080193958,  // ← 미세 조정용 위도
+                lng: 126.62132544974656  // ← 미세 조정용 경도
             }
         ];
 
-        let map, geocoder;
+        let map;
         const storeMarkers = [];
         const storeInfoWindows = [];
 
         window.onload = function() {
             const container = document.getElementById('map');
             const options = {
-                center: new kakao.maps.LatLng(37.394, 126.641),
+                center: new kakao.maps.LatLng(37.394, 126.641), // 송도 중심 좌표
                 level: 5
             };
             map = new kakao.maps.Map(container, options);
-            geocoder = new kakao.maps.services.Geocoder();
 
             renderStoreList();
             initStoreMarkers();
             initMyLocation();
         };
 
-        // 매장 카드 리스트 화면에 출력
         function renderStoreList() {
             const listContainer = document.getElementById('store-list');
             listContainer.innerHTML = '';
@@ -109,36 +110,31 @@
             });
         }
 
-        // 각 매장 위치 마커 생성
+        // 지정된 위도/경도로 정확한 마커 생성
         function initStoreMarkers() {
             stores.forEach((store, index) => {
-                geocoder.addressSearch(store.address, function(result, status) {
-                    if (status === kakao.maps.services.Status.OK) {
-                        const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
-                        
-                        const marker = new kakao.maps.Marker({
-                            map: map,
-                            position: coords,
-                            title: store.name
-                        });
-
-                        const infowindow = new kakao.maps.InfoWindow({
-                            content: `<div class="info-window">🍗 ${store.name}</div>`
-                        });
-
-                        kakao.maps.event.addListener(marker, 'click', function() {
-                            closeAllInfoWindows();
-                            infowindow.open(map, marker);
-                        });
-
-                        storeMarkers[index] = { marker, coords };
-                        storeInfoWindows[index] = infowindow;
-                    }
+                const coords = new kakao.maps.LatLng(store.lat, store.lng);
+                
+                const marker = new kakao.maps.Marker({
+                    map: map,
+                    position: coords,
+                    title: store.name
                 });
+
+                const infowindow = new kakao.maps.InfoWindow({
+                    content: `<div class="info-window">🍗 ${store.name}</div>`
+                });
+
+                kakao.maps.event.addListener(marker, 'click', function() {
+                    closeAllInfoWindows();
+                    infowindow.open(map, marker);
+                });
+
+                storeMarkers[index] = { marker, coords };
+                storeInfoWindows[index] = infowindow;
             });
         }
 
-        // 매장 카드 클릭 시 지도 이동 및 말풍선 열기
         function focusStore(index) {
             if (storeMarkers[index]) {
                 const { coords } = storeMarkers[index];
@@ -152,7 +148,6 @@
             storeInfoWindows.forEach(iw => iw && iw.close());
         }
 
-        // 내 위치 확인 및 표시
         function initMyLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
@@ -161,7 +156,6 @@
                         const lng = position.coords.longitude;
                         const myPos = new kakao.maps.LatLng(lat, lng);
 
-                        // 내 위치 마커 생성
                         const myMarker = new kakao.maps.Marker({
                             map: map,
                             position: myPos
@@ -172,11 +166,10 @@
                         });
                         myInfoWindow.open(map, myMarker);
 
-                        // 내 위치 중심으로 지도 중심 이동
                         map.setCenter(myPos);
                     },
                     function(error) {
-                        console.log("위치 권한을 거부했거나 가져올 수 없습니다.");
+                        console.log("PC 환경이거나 위치 권한을 가져올 수 없어 기본 중심점을 유지합니다.");
                     }
                 );
             }
