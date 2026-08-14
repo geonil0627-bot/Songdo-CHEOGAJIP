@@ -10,107 +10,174 @@
         body { padding: 15px; background-color: #f8f9fa; color: #333; }
         h1 { font-size: 20px; text-align: center; margin-bottom: 5px; color: #d32f2f; }
         .notice { text-align: center; font-size: 13px; color: #666; margin-bottom: 15px; }
-        #map { width: 100%; height: 350px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); background-color: #e0e0e0; }
         
+        /* 지도 컨테이너 및 내 위치 버튼 */
+        .map-wrapper { position: relative; width: 100%; height: 350px; margin-bottom: 15px; }
+        #map { width: 100%; height: 100%; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); background-color: #e0e0e0; }
+        
+        .my-loc-btn {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            z-index: 10;
+            background: #fff;
+            border: 1px solid #ccc;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .my-loc-btn:active { background-color: #f0f0f0; }
+
+        /* 매장 카드 스타일 */
         .store-card { 
             background: #fff; 
             padding: 15px; 
             border-radius: 10px; 
-            margin-bottom: 10px; 
+            margin-bottom: 12px; 
             box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
             cursor: pointer;
-            transition: transform 0.1s ease, background-color 0.2s;
         }
-        .store-card:active { background-color: #f0f0f0; transform: scale(0.98); }
-        .store-info h3 { font-size: 16px; margin-bottom: 3px; color: #111; }
-        .store-info p { font-size: 13px; color: #666; margin-bottom: 2px; }
-        .store-info .addr { font-size: 12px; color: #888; }
-        .call-btn { background-color: #e53935; color: white; text-decoration: none; padding: 10px 15px; border-radius: 6px; font-weight: bold; font-size: 14px; white-space: nowrap; }
+        .store-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .store-info h3 { font-size: 16px; color: #111; display: flex; align-items: center; gap: 6px; }
+        .distance-tag { font-size: 11px; background-color: #ffebee; color: #d32f2f; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+        .rating { font-size: 12px; color: #f39c12; margin-top: 2px; }
+        .store-info p { font-size: 13px; color: #666; margin-top: 3px; }
         
+        /* 버튼 모음 */
+        .btn-group { display: flex; gap: 6px; margin-top: 10px; }
+        .btn { flex: 1; text-align: center; padding: 8px 0; border-radius: 6px; font-size: 12px; font-weight: bold; text-decoration: none; border: none; cursor: pointer; }
+        .btn-call { background-color: #e53935; color: white; }
+        .btn-navi { background-color: #333; color: white; }
+        .btn-menu { background-color: #f0f0f0; color: #333; }
+
+        /* 접히는 메뉴판 */
+        .menu-box { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #eee; font-size: 12px; color: #444; }
+        .menu-item { display: flex; justify-content: space-between; margin-bottom: 4px; }
         .info-window { padding: 6px 10px; font-size: 13px; font-weight: bold; color: #333; text-align: center; white-space: nowrap; }
     </style>
 </head>
 <body>
 
     <h1>🍗 처갓집양념치킨 송도 매장 안내</h1>
-    <p class="notice">매장 카드를 터치하면 지도 위치로 이동합니다.</p>
+    <p class="notice">매장 카드를 터치하면 위치 확인 및 길안내가 가능합니다.</p>
     
-    <div id="map"></div>
+    <div class="map-wrapper">
+        <div id="map"></div>
+        <button class="my-loc-btn" onclick="moveToMyLocation()">🎯 내 위치로</button>
+    </div>
 
     <div id="store-list"></div>
 
     <script>
-        // 📌 [핀포인트 직접 수정 구역]
-        // lat(위도)과 lng(경도) 숫자를 수정하여 마커 위치를 미세조정할 수 있습니다.
         const stores = [
             { 
                 id: 0,
                 name: "처갓집양념치킨 송도센트럴점", 
                 address: "인천 연수구 하모니로188번길 17",
                 phone: "032-831-8980",
-                lat: 37.3823557281522,  // ← 미세 조정용 위도
-                lng: 126.63949009678146  // ← 미세 조정용 경도
+                rating: "4.8 ★ (120+)",
+                hours: "10:00 ~ 24:00",
+                lat: 37.3823557281522,  
+                lng: 126.63949009678146 
             },
             { 
                 id: 1,
                 name: "처갓집양념치킨 송도월드마크점", 
                 address: "인천 연수구 컨벤시아대로 50",
                 phone: "032-832-8328",
-                lat: 37.398488024328074,  // ← 미세 조정용 위도
-                lng: 126.65136432400652  // ← 미세 조정용 경도
+                rating: "4.7 ★ (95+)",
+                hours: "12:00 ~ 22:00",
+                lat: 37.398488024328074,  
+                lng: 126.65136432400652 
             },
             { 
                 id: 2,
                 name: "처갓집양념치킨 송도레이크점", 
                 address: "인천 연수구 아카데미로312번길 177",
                 phone: "032-833-8323",
-                lat: 37.40142080193958,  // ← 미세 조정용 위도
-                lng: 126.62132544974656  // ← 미세 조정용 경도
+                rating: "4.9 ★ (210+)",
+                hours: "11:00 ~ 22:00",
+                lat: 37.40142080193958,  
+                lng: 126.62132544974656
             }
         ];
 
         let map;
+        let myPos = null;
         const storeMarkers = [];
         const storeInfoWindows = [];
 
         window.onload = function() {
             const container = document.getElementById('map');
             const options = {
-                center: new kakao.maps.LatLng(37.394, 126.641), // 송도 중심 좌표
+                center: new kakao.maps.LatLng(37.394, 126.641),
                 level: 5
             };
             map = new kakao.maps.Map(container, options);
 
-            renderStoreList();
             initStoreMarkers();
             initMyLocation();
         };
 
+        // 직선거리 계산 알고리즘 (Haversine Formula)
+        function getDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // 지구 반지름 (km)
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            const d = R * c;
+            return d >= 1 ? d.toFixed(1) + 'km' : Math.round(d * 1000) + 'm';
+        }
+
+        // 매장 목록 카드 그리기
         function renderStoreList() {
             const listContainer = document.getElementById('store-list');
             listContainer.innerHTML = '';
 
             stores.forEach((store, index) => {
+                let distText = '';
+                if (myPos) {
+                    distText = getDistance(myPos.getLat(), myPos.getLng(), store.lat, store.lng);
+                }
+
                 const card = document.createElement('div');
                 card.className = 'store-card';
                 card.onclick = () => focusStore(index);
 
                 card.innerHTML = `
-                    <div class="store-info">
-                        <h3>${store.name}</h3>
-                        <p>${store.phone}</p>
-                        <p class="addr">${store.address}</p>
+                    <div class="store-header">
+                        <div class="store-info">
+                            <h3>${store.name} ${distText ? `<span class="distance-tag">${distText}</span>` : ''}</h3>
+                            <div class="rating">${store.rating} | ⏰ ${store.hours}</div>
+                            <p>${store.address}</p>
+                        </div>
                     </div>
-                    <a href="tel:${store.phone}" class="call-btn" onclick="event.stopPropagation();">📞 전화걸기</a>
+
+                    <div class="btn-group">
+                        <a href="tel:${store.phone}" class="btn btn-call" onclick="event.stopPropagation();">📞 전화</a>
+                        <a href="https://map.kakao.com/link/to/${store.name},${store.lat},${store.lng}" target="_blank" class="btn btn-navi" onclick="event.stopPropagation();">🗺️ 길찾기</a>
+                        <button class="btn btn-menu" onclick="toggleMenu(event, ${index})">🍗 대표메뉴</button>
+                    </div>
+
+                    <div class="menu-box" id="menu-${index}">
+                        <div class="menu-item"><span>슈프림양념치킨</span> <b>23,000원</b></div>
+                        <div class="menu-item"><span>양념치킨</span> <b>21,000원</b></div>
+                        <div class="menu-item"><span>후라이드치킨</span> <b>20,000원</b></div>
+                    </div>
                 `;
                 listContainer.appendChild(card);
             });
         }
 
-        // 지정된 위도/경도로 정확한 마커 생성
         function initStoreMarkers() {
             stores.forEach((store, index) => {
                 const coords = new kakao.maps.LatLng(store.lat, store.lng);
@@ -133,6 +200,46 @@
                 storeMarkers[index] = { marker, coords };
                 storeInfoWindows[index] = infowindow;
             });
+            renderStoreList();
+        }
+
+        // 내 위치 확인 및 마커 표시
+        function initMyLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        myPos = new kakao.maps.LatLng(lat, lng);
+
+                        const myMarker = new kakao.maps.Marker({
+                            map: map,
+                            position: myPos
+                        });
+
+                        const myInfoWindow = new kakao.maps.InfoWindow({
+                            content: '<div class="info-window" style="color:#d32f2f;">📍 내 현재 위치</div>'
+                        });
+                        myInfoWindow.open(map, myMarker);
+
+                        map.setCenter(myPos);
+                        renderStoreList(); // 위치 확인 후 거리가 반영된 카드 목록 업데이트
+                    },
+                    function(error) {
+                        console.log("위치 권한을 허용하지 않음");
+                    }
+                );
+            }
+        }
+
+        // 내 위치로 버튼 클릭
+        function moveToMyLocation() {
+            if (myPos) {
+                closeAllInfoWindows();
+                map.panTo(myPos);
+            } else {
+                alert("현재 위치 정보를 불러올 수 없습니다. 브라우저 위치 권한을 확인해 주세요.");
+            }
         }
 
         function focusStore(index) {
@@ -148,35 +255,16 @@
             storeInfoWindows.forEach(iw => iw && iw.close());
         }
 
-        function initMyLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    function(position) {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        const myPos = new kakao.maps.LatLng(lat, lng);
-
-                        const myMarker = new kakao.maps.Marker({
-                            map: map,
-                            position: myPos
-                        });
-
-                        const myInfoWindow = new kakao.maps.InfoWindow({
-                            content: '<div class="info-window" style="color:#d32f2f;">📍 내 현재 위치</div>'
-                        });
-                        myInfoWindow.open(map, myMarker);
-
-                        map.setCenter(myPos);
-                    },
-                    function(error) {
-                        console.log("PC 환경이거나 위치 권한을 가져올 수 없어 기본 중심점을 유지합니다.");
-                    }
-                );
+        // 메뉴판 접기/열기 토글
+        function toggleMenu(event, index) {
+            event.stopPropagation();
+            const menuBox = document.getElementById(`menu-${index}`);
+            if (menuBox.style.display === 'block') {
+                menuBox.style.display = 'none';
+            } else {
+                menuBox.style.display = 'block';
             }
         }
-    </script>
-</body>
-</html>
     </script>
 </body>
 </html>
