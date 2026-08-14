@@ -326,35 +326,35 @@
                 card.onclick = () => focusStore(index);
 
                 card.innerHTML = `
-                    <div class="store-header">
-                        <div class="store-info">
-                            <h3>${store.name} ${distText ? `<span class="distance-tag">${distText}</span>` : ''}</h3>
-                            <div class="rating">
-                                <i class="fa-solid fa-star"></i> <b>${store.rating}</b> (${store.reviews}) | ⏰ ${store.hours}
-                            </div>
-                            <p class="address"><i class="fa-solid fa-location-dot" style="color:#aaa;"></i> ${store.address}</p>
-                        </div>
-                    </div>
+    <div class="store-header">
+        <div class="store-info">
+            <h3>${store.name} ${distText ? `<span class="distance-tag">${distText}</span>` : ''}</h3>
+            <div class="rating">
+                <i class="fa-solid fa-star"></i> <b>${store.rating}</b> (${store.reviews}) | ⏰ ${store.hours}
+            </div>
+            <p class="address"><i class="fa-solid fa-location-dot" style="color:#aaa;"></i> ${store.address}</p>
+        </div>
+    </div>
 
-                    <div class="btn-group">
-                        <a href="tel:${store.phone}" class="btn btn-call" onclick="event.stopPropagation();">
-                            <i class="fa-solid fa-phone"></i> 전화걸기
-                        </a>
-                        <a href="https://map.kakao.com/link/to/${store.name},${store.lat},${store.lng}" target="_blank" class="btn btn-navi" onclick="event.stopPropagation();">
-                            <i class="fa-solid fa-route"></i> 길찾기
-                        </a>
-                        <button class="btn btn-menu" onclick="toggleMenu(event, ${index})">
-                            <i class="fa-solid fa-utensils"></i> 대표메뉴
-                        </button>
-                    </div>
+    <div class="btn-group">
+        <a href="tel:${store.phone}" class="btn btn-call" onclick="event.stopPropagation();">
+            <i class="fa-solid fa-phone"></i> 전화걸기
+        </a>
+        <a href="https://map.kakao.com/link/to/${store.name},${store.lat},${store.lng}" target="_blank" class="btn btn-navi" onclick="event.stopPropagation();">
+            <i class="fa-solid fa-route"></i> 길찾기
+        </a>
+        <button class="btn btn-menu" onclick="toggleMenu(event, ${index})">
+            <i class="fa-solid fa-utensils"></i> 대표메뉴
+        </button>
+    </div>
 
-                    <div class="menu-box" id="menu-${index}">
-                        <div class="menu-item"><span>슈프림양념치킨(Best)</span> <b>23,000원</b></div>
-                        <div class="menu-item"><span>양념치킨</span> <b>21,000원</b></div>
-                        <div class="menu-item"><span>후라이드치킨</span> <b>20,000원</b></div>
-                        <div class="menu-item"><span>콜팝</span> <b>4,000~5,000원</b></div>
-                    </div>
-                `;
+    <div class="menu-box" id="menu-${index}">
+        <div class="menu-item"><span>슈프림양념치킨(Best)</span> <b>23,000원</b></div>
+        <div class="menu-item"><span>양념치킨</span> <b>21,000원</b></div>
+        <div class="menu-item"><span>후라이드치킨</span> <b>20,000원</b></div>
+        <div class="menu-item"><span>콜팝</span> <b>4,000~5,000원</b></div>
+    </div>
+`;
                 listContainer.appendChild(card);
             });
         }
