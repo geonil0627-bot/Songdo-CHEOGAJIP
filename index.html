@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>처갓집양념치킨 송도 매장 안내</title>
-    <!-- 카카오 지도 API (autoload=false 옵션 추가로 지도 로딩 오류 해결) -->
-    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=a4e99ce36c59c06bbd13225c4f3067b3&libraries=services&autoload=false"></script>
+    <!-- 카카오 지도 API 불러오기 (SDK 전용 키 적용) -->
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=a4e99ce36c59c06bbd13225c4f3067b3&libraries=services"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif; }
         body { padding: 15px; background-color: #f8f9fa; color: #333; }
         h1 { font-size: 20px; text-align: center; margin-bottom: 5px; color: #d32f2f; }
         .notice { text-align: center; font-size: 13px; color: #666; margin-bottom: 15px; }
-        #map { width: 100%; height: 350px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); background-color: #eee; }
+        #map { width: 100%; height: 350px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); background-color: #e0e0e0; }
         .store-card { background: #fff; padding: 15px; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
         .store-info h3 { font-size: 16px; margin-bottom: 5px; color: #111; }
         .store-info p { font-size: 13px; color: #666; }
@@ -52,15 +52,8 @@
     </div>
 
     <script>
-        // 카카오 지도 API가 완전히 로드된 후 실행되도록 설정
-        kakao.maps.load(function() {
-            const stores = [
-                { name: "처갓집양념치킨 송도센트럴점", address: "인천 연수구 컨벤시아대로 130" },
-                { name: "처갓집양념치킨 송도월드마크점", address: "인천 연수구 신송로 122" },
-                { name: "처갓집양념치킨 송도레이크점", address: "인천 연수구 랜드마크로 160" }
-            ];
-
-            // 기본 지도 중심 설정 (송도 중심)
+        window.onload = function() {
+            // 1. 기본 지도 먼저 그리기 (송도 중심 좌표)
             const container = document.getElementById('map');
             const options = {
                 center: new kakao.maps.LatLng(37.394, 126.641),
@@ -69,8 +62,14 @@
             const map = new kakao.maps.Map(container, options);
             const geocoder = new kakao.maps.services.Geocoder();
 
-            // 3개 매장 주소 -> 좌표 전환 및 마커 표시
-            stores.forEach(store => {
+            // 2. 송도 3개 매장 주소를 좌표로 변환하여 마커 표시
+            const stores = [
+                { name: "처갓집양념치킨 송도센트럴점", address: "인천 연수구 컨벤시아대로 130" },
+                { name: "처갓집양념치킨 송도월드마크점", address: "인천 연수구 신송로 122" },
+                { name: "처갓집양념치킨 송도레이크점", address: "인천 연수구 랜드마크로 160" }
+            ];
+
+            stores.forEach(function(store) {
                 geocoder.addressSearch(store.address, function(result, status) {
                     if (status === kakao.maps.services.Status.OK) {
                         const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
@@ -83,26 +82,28 @@
                 });
             });
 
-            // 사용자 내 위치 가져오기 (위치 권한 팝업)
+            // 3. 접속자 위치 추적 (위치 권한 요청 팝업)
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    const lat = position.coords.latitude;
-                    const lng = position.coords.longitude;
-                    const locPosition = new kakao.maps.LatLng(lat, lng);
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        const locPosition = new kakao.maps.LatLng(lat, lng);
 
-                    // 접속자 위치 마커 표시 (빨간 마커)
-                    new kakao.maps.Marker({
-                        map: map,
-                        position: locPosition
-                    });
-
-                    // 접속자 위치로 지도 중심 이동
-                    map.setCenter(locPosition);
-                }, function(error) {
-                    console.log("위치 정보 접근 권한이 거부되었거나 위치를 찾을 수 없습니다.");
-                });
+                        // 접속자 위치 마커 표시 및 지도 중심 이동
+                        new kakao.maps.Marker({
+                            map: map,
+                            position: locPosition
+                        });
+                        map.setCenter(locPosition);
+                    },
+                    function(error) {
+                        // 위치 권한 거부 시에도 기본 지도(송도)는 유지됨
+                        console.log("위치 권한이 거부되었거나 위치를 가져올 수 없습니다.");
+                    }
+                );
             }
-        });
+        };
     </script>
 </body>
 </html>
