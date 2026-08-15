@@ -33,7 +33,7 @@
             position: relative;
         }
 
-        /* 💡 로고 이미지 스타일 */
+        /* 로고 이미지 스타일 */
         .brand-logo {
             display: block;
             max-width: 180px;
@@ -133,7 +133,7 @@
         .rating i { color: #FFB800; }
         .store-info .address { font-size: 13px; color: var(--text-sub); margin-top: 6px; line-height: 1.4; }
         
-        /* 🎟️ 쿠폰 버튼 스타일 및 선명한 아이콘 백그라운드 추가 */
+        /* 쿠폰 버튼 스타일 */
         .coupon-badge {
             display: inline-flex;
             align-items: center;
@@ -149,6 +149,7 @@
             white-space: nowrap;
             flex-shrink: 0;
             margin-left: 8px;
+            cursor: pointer;
         }
 
         .coupon-badge:hover {
@@ -247,7 +248,6 @@
         }
         .bg-insta { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%,#d6249f 60%,#285AEB 90%); }
         .bg-home { background-color: var(--brand-red); }
-        .bg-blog { background-color: #03CF5D; }
         .divider { width: 1px; height: 16px; background-color: #E0E0E0; }
 
         /* 푸터 정보 */
@@ -264,10 +264,8 @@
 </head>
 <body>
 
-<!-- 브랜드 헤더 부분 -->
 <header class="brand-header">
     <img src="https://cdn.jsdelivr.net/gh/geonil0627-bot/logo@main/logo.png" alt="처갓집양념치킨 로고" class="brand-logo">
-    
     <span class="brand-badge">CHEOGAJIP OFFICIAL</span>
     <h1>처갓집양념치킨 송도지점</h1>
     <p>매장 안내</p>
@@ -286,7 +284,7 @@
             <i class="fa-solid fa-store" style="color: var(--brand-red);"></i> 매장 목록
         </div>
 
-        <!-- 매장 카드가 출력되는 영역 -->
+        <!-- 매장 목록 카드가 출력되는 영역 -->
         <div id="store-list"></div>
 
         <!-- 공식 SNS & 홈페이지 연결 바 -->
@@ -309,7 +307,6 @@
     </div>
 
     <script>
-        // 지점 데이터 (송도월드마크점에 훈제반마리 증정 쿠폰 속성 추가)
         const stores = [
             { 
                 id: 0,
@@ -369,7 +366,30 @@
             initMyLocation();
         };
 
-        // 직선거리 계산
+        // 앱 열기 / 스토어 이동 핵심 로직
+        function openAppOrStore(event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const userAgent = navigator.userAgent.toLowerCase();
+            const fallbackUrl = "https://app.cheogajip.co.kr/Z8EH?pid=nambu&c=store&af_adset=in2&af_ad=a0027&is_retargeting=true";
+
+            // 안드로이드 디바이스 처리 (Intent Scheme)
+            if (/android/i.test(userAgent)) {
+                const encodedFallback = encodeURIComponent(fallbackUrl);
+                // intent 구문을 사용해 앱 실행 시도, 미설치 시 browser_fallback_url(에어브릿지 원링크)로 이동
+                const intentUrl = `intent://open#Intent;scheme=cheogajip;package=com.cheogajip.app;S.browser_fallback_url=${encodedFallback};end`;
+                window.location.href = intentUrl;
+            } 
+            // iOS 또는 기타 환경 처리
+            else {
+                // 에어브릿지 링크에 리타겟팅/딥링크 파라미터 강제 부여
+                const iosDeepLink = `${fallbackUrl}&deep_link_value=open`;
+                window.location.href = iosDeepLink;
+            }
+        }
+
+        // 두 지점 간 거리 계산
         function getDistance(lat1, lon1, lat2, lon2) {
             const R = 6371;
             const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -392,17 +412,14 @@
                     distText = getDistance(myPos.getLat(), myPos.getLng(), store.lat, store.lng);
                 }
 
-                // 쿠폰 및 안내 문구가 있는 지점 처리
                 let couponBtnHtml = '';
                 let couponInfoHtml = '';
 
                 if (store.badgeText) {
                     couponBtnHtml = `
-                        <a href="https://app.cheogajip.co.kr/Z8EH?pid=nambu&c=store&af_adset=in2&af_ad=a0027&is_retargeting=true" 
-                           target="_blank" 
-                           rel="noopener noreferrer" 
+                        <a href="#" 
                            class="coupon-badge" 
-                           onclick="event.stopPropagation();">
+                           onclick="openAppOrStore(event)">
                             <span class="coupon-icon-bg">🎟️</span>${store.badgeText}
                         </a>
                     `;
