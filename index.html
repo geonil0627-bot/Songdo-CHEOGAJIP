@@ -306,6 +306,9 @@
     </div>
 
     <script>
+        // 에어브릿지 공식 원링크 주소
+        const AIRBRIDGE_LINK = "https://app.cheogajip.co.kr/Z8EH?pid=nambu&c=store&af_adset=in2&af_ad=a0027&is_retargeting=true";
+
         const stores = [
             { 
                 id: 0,
@@ -365,28 +368,6 @@
             initMyLocation();
         };
 
-        // 앱 열기 / 스토어 이동 분기 로직
-        function openAppOrStore(event) {
-            event.preventDefault();
-            event.stopPropagation();
-
-            const userAgent = navigator.userAgent.toLowerCase();
-            const fallbackUrl = "https://app.cheogajip.co.kr/Z8EH?pid=nambu&c=store&af_adset=in2&af_ad=a0027&is_retargeting=true";
-
-            // 안드로이드 환경 처리
-            if (/android/i.test(userAgent)) {
-                const encodedFallback = encodeURIComponent(fallbackUrl);
-                // scheme=wmpocheogajip 및 package=com.wmpoplus.cheogajip 지정
-                const intentUrl = `intent://open#Intent;scheme=wmpocheogajip;package=com.wmpoplus.cheogajip;S.browser_fallback_url=${encodedFallback};end`;
-                window.location.href = intentUrl;
-            } 
-            // iOS 또는 기타 환경 처리
-            else {
-                const targetUrl = `${fallbackUrl}&deep_link_value=open&re_open=true`;
-                window.location.href = targetUrl;
-            }
-        }
-
         // 두 지점 간 거리 계산
         function getDistance(lat1, lon1, lat2, lon2) {
             const R = 6371;
@@ -414,10 +395,11 @@
                 let couponInfoHtml = '';
 
                 if (store.badgeText) {
+                    // event.stopPropagation()만 수행하여 카드 클릭 이벤트 분리 후 에어브릿지 링크로 직접 연결
                     couponBtnHtml = `
-                        <a href="#" 
+                        <a href="${AIRBRIDGE_LINK}" 
                            class="coupon-badge" 
-                           onclick="openAppOrStore(event)">
+                           onclick="event.stopPropagation();">
                             <span class="coupon-icon-bg">🎟️</span>${store.badgeText}
                         </a>
                     `;
