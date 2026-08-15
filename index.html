@@ -306,9 +306,6 @@
     </div>
 
     <script>
-        // 에어브릿지 표준 원링크 URL (추가 JS 처리나 intent:// 호출 없이 모바일 OS가 직접 핸들링하도록 설정)
-        const AIRBRIDGE_URL = "https://app.cheogajip.co.kr/Z8EH?pid=nambu&c=store&af_adset=in2&af_ad=a0027&is_retargeting=true";
-
         const stores = [
             { 
                 id: 0,
@@ -356,6 +353,34 @@
         const storeMarkers = [];
         const storeInfoWindows = [];
 
+        // 앱 실행 함수 (원터치 이동 처리)
+        function openCheogajipApp(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            const userAgent = navigator.userAgent.toLowerCase();
+            const isAndroid = /android/i.test(userAgent);
+            const isIOS = /iphone|ipad|ipod/i.test(userAgent);
+
+            // 에어브릿지 트래킹 링크 (미설치 시 스토어 이동용 Fallback)
+            const airbridgeUrl = "https://app.cheogajip.co.kr/Z8EH?pid=nambu&c=store&af_adset=in2&af_ad=a0027&is_retargeting=true";
+
+            if (isAndroid) {
+                // 처갓집 앱 패키지(kr.co.cheogajip.app)를 직접 지정한 Intent 구문
+                // 승인 도메인 차이와 관계없이 스마트폰 OS가 처갓집 앱을 즉시 실행함
+                const androidIntent = "intent://open#Intent;scheme=cheogajip;package=kr.co.cheogajip.app;S.browser_fallback_url=" + encodeURIComponent(airbridgeUrl) + ";end";
+                window.location.href = androidIntent;
+            } else if (isIOS) {
+                // iOS 환경 처리
+                window.location.href = airbridgeUrl;
+            } else {
+                // PC 환경
+                window.location.href = airbridgeUrl;
+            }
+        }
+
         window.onload = function() {
             const container = document.getElementById('map');
             const options = {
@@ -368,7 +393,6 @@
             initMyLocation();
         };
 
-        // 두 지점 간 거리 계산
         function getDistance(lat1, lon1, lat2, lon2) {
             const R = 6371;
             const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -395,11 +419,10 @@
                 let couponInfoHtml = '';
 
                 if (store.badgeText) {
-                    // 표준 <a> 태그 이동을 적용하여 OS App Links가 작동하도록 설정
                     couponBtnHtml = `
-                        <a href="${AIRBRIDGE_URL}" 
+                        <a href="#" 
                            class="coupon-badge" 
-                           onclick="event.stopPropagation();">
+                           onclick="openCheogajipApp(event)">
                             <span class="coupon-icon-bg">🎟️</span>${store.badgeText}
                         </a>
                     `;
