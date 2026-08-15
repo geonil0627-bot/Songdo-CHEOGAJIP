@@ -365,37 +365,35 @@
             initMyLocation();
         };
 
-        // 앱 실행 / 미설치 시 스토어 이동 핵심 로직
-        function openAppOrStore(event) {
-            event.preventDefault();
-            event.stopPropagation();
+// 앱 실행 / 미설치 시 에어브릿지 이동 (Intent 팝업 우회)
+function openAppOrStore(event) {
+    event.preventDefault();
+    event.stopPropagation();
 
-            const userAgent = navigator.userAgent.toLowerCase();
-            const fallbackUrl = "https://app.cheogajip.co.kr/Z8EH?pid=nambu&c=store&af_adset=in2&af_ad=a0027&is_retargeting=true";
+    const userAgent = navigator.userAgent.toLowerCase();
+    const fallbackUrl = "https://app.cheogajip.co.kr/Z8EH?pid=nambu&c=store&af_adset=in2&af_ad=a0027&is_retargeting=true";
+    const appScheme = "cheogajip://open"; // 처갓집 앱 커스텀 스킴
 
-            // Android: Android Intent Scheme을 통해 패키지 및 딥링크 전달
-            if (/android/i.test(userAgent)) {
-                const encodedFallback = encodeURIComponent(fallbackUrl);
-                // 안드로이드 앱 실행을 위한 Intent 스킴
-                const intentUrl = `intent://open#Intent;scheme=cheogajip;package=com.wmpoplus.cheogajip;S.browser_fallback_url=${encodedFallback};end`;
-                window.location.href = intentUrl;
-            } 
-            // iOS: 커스텀 스킴 실행 후 미설치 시 에어브릿지 링크로 타이머 백그라운드 전환
-            else if (/iphone|ipad|ipod/i.test(userAgent)) {
-                const now = Date.now();
-                window.location.href = "cheogajip://open";
-                
-                setTimeout(function() {
-                    if (Date.now() - now < 2000) {
-                        window.location.href = fallbackUrl;
-                    }
-                }, 1500);
-            } 
-            // 기타 (PC 등): 에어브릿지 웹링크 호출
-            else {
+    const isMobile = /iphone|ipad|ipod|android/i.test(userAgent);
+
+    if (isMobile) {
+        const startTime = Date.now();
+        
+        // 1. 커스텀 스킴으로 앱 직접 호출 (스토어 확인 팝업 없음)
+        window.location.href = appScheme;
+
+        // 2. 앱이 실행되지 않아 브라우저에 남아있는 경우에만 백그라운드로 에어브릿지 이동
+        setTimeout(function() {
+            // 사용자가 앱으로 이동했다면 화면 전환으로 타이머 오차가 커짐
+            if (Date.now() - startTime < 2000) {
                 window.location.href = fallbackUrl;
             }
-        }
+        }, 1200);
+    } else {
+        // PC 등
+        window.location.href = fallbackUrl;
+    }
+}
 
         // 두 지점 간 거리 계산
         function getDistance(lat1, lon1, lat2, lon2) {
