@@ -309,7 +309,7 @@
     </div>
 
     <script>
-        // 지점 데이터 (송도센트럴점 및 송도레이크점에 쿠폰 속성 추가)
+        // 지점 데이터 (송도월드마크점에 훈제반마리 증정 쿠폰 속성 추가)
         const stores = [
             { 
                 id: 0,
@@ -321,7 +321,8 @@
                 hours: "10:00 ~ 24:00",
                 lat: 37.3823557281522,  
                 lng: 126.63949009678146,
-                couponCode: "송도센트럴"
+                badgeText: "7,000원 할인",
+                couponInfoText: "'<strong>송도센트럴</strong>' 쿠폰입력 시 7,000원 할인쿠폰 증정"
             },
             { 
                 id: 1,
@@ -332,7 +333,9 @@
                 reviews: "476+",
                 hours: "12:00 ~ 22:00",
                 lat: 37.398488024328074,  
-                lng: 126.65136432400652
+                lng: 126.65136432400652,
+                badgeText: "훈제반마리 증정",
+                couponInfoText: "주문 시 증정 선택해주세요."
             },
             { 
                 id: 2,
@@ -344,7 +347,8 @@
                 hours: "11:00 ~ 22:00",
                 lat: 37.40142080193958,  
                 lng: 126.62132544974656,
-                couponCode: "송도레이크"
+                badgeText: "7,000원 할인",
+                couponInfoText: "'<strong>송도레이크</strong>' 쿠폰입력 시 7,000원 할인쿠폰 증정"
             }
         ];
 
@@ -388,24 +392,26 @@
                     distText = getDistance(myPos.getLat(), myPos.getLng(), store.lat, store.lng);
                 }
 
-                // 쿠폰 적용 지점일 경우 쿠폰 버튼 및 안내 문구 생성 (? 파라미터 적용)
+                // 쿠폰 및 안내 문구가 있는 지점 처리
                 let couponBtnHtml = '';
                 let couponInfoHtml = '';
 
-                if (store.couponCode) {
+                if (store.badgeText) {
                     couponBtnHtml = `
                         <a href="https://app.cheogajip.co.kr/Z8EH?pid=nambu&c=store&af_adset=in2&af_ad=a0027&is_retargeting=true" 
                            target="_blank" 
                            rel="noopener noreferrer" 
                            class="coupon-badge" 
                            onclick="event.stopPropagation();">
-                            <span class="coupon-icon-bg">🎟️</span>7,000원 할인
+                            <span class="coupon-icon-bg">🎟️</span>${store.badgeText}
                         </a>
                     `;
+                }
 
+                if (store.couponInfoText) {
                     couponInfoHtml = `
                         <p class="coupon-info">
-                            '<strong>${store.couponCode}</strong>' 쿠폰입력 시 7,000원 할인쿠폰 증정
+                            ${store.couponInfoText}
                         </p>
                     `;
                 }
