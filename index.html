@@ -33,7 +33,6 @@
             position: relative;
         }
 
-        /* 로고 이미지 스타일 */
         .brand-logo {
             display: block;
             max-width: 180px;
@@ -366,29 +365,28 @@
             initMyLocation();
         };
 
-// 앱 열기 / 스토어 이동 핵심 로직
-function openAppOrStore(event) {
-    event.preventDefault();
-    event.stopPropagation();
+        // 앱 열기 / 스토어 이동 분기 로직
+        function openAppOrStore(event) {
+            event.preventDefault();
+            event.stopPropagation();
 
-    const userAgent = navigator.userAgent.toLowerCase();
-    // 에어브릿지 원링크 주소
-    const fallbackUrl = "https://app.cheogajip.co.kr/Z8EH?pid=nambu&c=store&af_adset=in2&af_ad=a0027&is_retargeting=true";
+            const userAgent = navigator.userAgent.toLowerCase();
+            const fallbackUrl = "https://app.cheogajip.co.kr/Z8EH?pid=nambu&c=store&af_adset=in2&af_ad=a0027&is_retargeting=true";
 
-    // 안드로이드 디바이스 처리 (Intent Scheme)
-    if (/android/i.test(userAgent)) {
-        const encodedFallback = encodeURIComponent(fallbackUrl);
-        // 패키지명을 정확하게 com.wmpoplus.cheogajip 으로 수정
-        const intentUrl = `intent://open#Intent;scheme=cheogajip;package=com.wmpoplus.cheogajip;S.browser_fallback_url=${encodedFallback};end`;
-        window.location.href = intentUrl;
-    } 
-    // iOS 또는 기타 환경 처리
-    else {
-        // 에어브릿지 링크에 리타겟팅/딥링크 파라미터 강제 부여
-        const iosDeepLink = `${fallbackUrl}&deep_link_value=open`;
-        window.location.href = iosDeepLink;
-    }
-}
+            // 안드로이드 환경 처리
+            if (/android/i.test(userAgent)) {
+                const encodedFallback = encodeURIComponent(fallbackUrl);
+                // scheme=wmpocheogajip 및 package=com.wmpoplus.cheogajip 지정
+                const intentUrl = `intent://open#Intent;scheme=wmpocheogajip;package=com.wmpoplus.cheogajip;S.browser_fallback_url=${encodedFallback};end`;
+                window.location.href = intentUrl;
+            } 
+            // iOS 또는 기타 환경 처리
+            else {
+                const targetUrl = `${fallbackUrl}&deep_link_value=open&re_open=true`;
+                window.location.href = targetUrl;
+            }
+        }
+
         // 두 지점 간 거리 계산
         function getDistance(lat1, lon1, lat2, lon2) {
             const R = 6371;
